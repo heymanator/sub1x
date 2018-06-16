@@ -3,7 +3,7 @@
 **Note, this installed is designed to install sub1x as a user with sudo privileges.**
 It will not enable any security measures.
 It will not do anything to your VPS except
-1. Download and put sub1x binary folders in /usr/local/bin
+1. Download and put sub1x binary files in /usr/local/bin
 2. Open the port for sub1x in ufw (it will not enable ufw if it is not already enabled)
 3. It will create a systemd service that will autostart sub1x on reboot or if it crashes.
 
