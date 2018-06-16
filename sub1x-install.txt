@@ -1,0 +1,118 @@
+#!/bin/bash
+
+## This script should be run as a user with sudo activated.
+## run a sudo command like "sudo true" before running this script.
+## failing to do this step will result in a working installation of sub1x that will not run automatically and will not open the port in ufw.
+
+COIN="sub1x"
+COINHOME="$HOME/.zsub1x"
+CONF='zsub1x.conf'
+COINBIN='zsub1xd'
+BINARY_FILE="/usr/local/bin/$COINBIN"
+BINARY_CLI="/usr/local/bin/zsub1x-cli"
+COINTGZ='https://github.com/SuB1X-Coin/zSub1x/releases/download/v1.3.4/zsub1x-1.3.4-x86_64-linux.tar.gz'
+TGZ=${COINTGZ##*/}
+COINPORT=5721
+VPSIP=$(curl -s4 icanhazip.com)
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+NC='\033[0m'
+
+echo -e "${GREEN}Downloading executable. ${NC}"
+
+cd ~
+wget $COINTGZ
+sudo tar -xzvf $TGZ -C /usr/local/bin/
+rm $TGZ
+sudo ufw allow $COINPORT
+
+RPCUSER=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w10 | head -n1)
+RPCPASSWORD=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w22 | head -n1)
+
+echo -e "${GREEN}Configuring datadirectory and obtaining masternodeprivkey. ${NC}"
+
+mkdir $COINHOME
+tee $COINHOME/$CONF &> /dev/null << EOF
+rpcuser=$RPCUSER
+rpcpassword=$RPCPASSWORD
+rpcallowip=127.0.0.1
+listen=1
+server=1
+daemon=1
+rpcport=${COINPORT}1
+port=$COINPORT
+EOF
+
+$BINARY_FILE -daemon
+
+sleep 20
+
+COINKEY=$($BINARY_CLI masternode genkey)
+
+$BINARY_CLI stop
+
+echo -e "${GREEN}Adding IP address and masternodeprivkey. ${NC}"
+rm -rf $COINHOME
+mkdir $COINHOME
+
+tee $COINHOME/$CONF &> /dev/null << EOF
+rpcuser=$RPCUSER
+rpcpassword=$RPCPASSWORD
+rpcallowip=127.0.0.1
+listen=1
+server=1
+daemon=1
+rpcport=${COINPORT}1
+port=$COINPORT
+masternode=1
+externalip=$VPSIP:$COINPORT
+masternodeprivkey=$COINKEY
+addnode=sub1x.seeds.mn.zone
+EOF
+
+sleep 10
+
+$BINARY_FILE -daemon -reindex
+echo -e "${GREEN}Configuring systemd service to autostart sub1x. ${NC}"
+
+sudo tee /etc/systemd/system/$COIN.service &> /dev/null <<EOF
+[Unit]
+Description=$COIN service
+After=network.target
+[Service]
+Type=forking
+User=$USER
+Group=$USER
+WorkingDirectory=$COINHOME
+ExecStart=$BINARY_FILE -daemon
+ExecStop=$BINARY_CLI stop
+Restart=always
+PrivateTmp=true
+TimeoutStopSec=60s
+TimeoutStartSec=10s
+StartLimitInterval=120s
+StartLimitBurst=5
+[Install]
+WantedBy=multi-user.target
+EOF
+
+sudo systemctl daemon-reload
+sleep 4
+sudo systemctl start $COIN.service
+sleep 5
+$BINARY_CLI getinfo
+sudo systemctl enable $COIN.service
+
+$BINARY_CLI getinfo
+echo ""
+echo -e "${RED}IP Address:${NC} $VPSIP:$COINPORT"
+echo -e "${RED}Privkey:${NC} $COINKEY"
+echo ""
+echo -e "Add the following line to your local wallet's masternode.conf."  
+echo -e "Substitute the results of masternode output for the words txhash and index."
+echo -e "${RED}Sub1xMN1 $VPSIP:$COINPORT $COINKEY txhash index${NC}"
+echo ""
+echo -e "To stop sub1x, ${GREEN}sudo systemctl stop $COIN${NC}"
+echo -e "To start sub1x, ${GREEN}sudo systemctl start $COIN${NC}"
+echo -e "To prevent sub1x from loading at boot, ${GREEN}sudo systemctl disable $COIN${NC}"
