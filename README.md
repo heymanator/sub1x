@@ -12,7 +12,7 @@ All other changes are inside the user's home directory.
 ## Recommended use:
 ```
 sudo true
-wget https://github.com/heymanator/sub1x/blob/master/sub1x-install.txt
+wget https://github.com/heymanator/sub1x/raw/master/sub1x-install.txt
 bash sub1x-install.sh
 ```
 
@@ -33,7 +33,7 @@ adduser <username> sudo
 su - <username>
 
 sudo true
-wget https://github.com/heymanator/sub1x/blob/master/sub1x-install.txt
+wget https://github.com/heymanator/sub1x/raw/master/sub1x-install.txt
 bash sub1x-install.txt
 ```
 
