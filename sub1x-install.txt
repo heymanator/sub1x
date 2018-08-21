@@ -46,9 +46,14 @@ EOF
 
 $BINARY_FILE -daemon
 
-sleep 20
+sleep 10
 
 COINKEY=$($BINARY_CLI masternode genkey)
+
+while [ -z "$COINKEY" ]; do
+    sleep 10
+    COINKEY=$($BINARY_CLI masternode genkey)
+done
 
 $BINARY_CLI stop
 
