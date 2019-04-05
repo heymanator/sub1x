@@ -38,7 +38,7 @@ bash sub1x-install.txt
 ```
 
 ## I also recommend disabling root logins for ssh for security.
-Note: ONLY do this if you followed my advice above and creted a regular user.
+Note: ONLY do this if you followed my advice above and created a regular user.
 ```
 sudo sed -i  "s/.*PermitRootLogin yes/PermitRootLogin no/g" /etc/ssh/sshd_config
 sudo service sshd restart
