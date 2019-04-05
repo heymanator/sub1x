@@ -13,7 +13,7 @@ All other changes are inside the user's home directory.
 ```
 sudo true
 wget https://github.com/heymanator/sub1x/raw/master/sub1x-install.txt
-bash sub1x-install.sh
+bash sub1x-install.txt
 ```
 
 ## If you are using this on a new VPS, you should at minimum:
