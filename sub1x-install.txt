@@ -81,7 +81,7 @@ externalip=$VPSIP:$COINPORT
 masternodeprivkey=$COINKEY
 
 EOF
-echo ${ADDNODE:3: -4} | tr -s '&#xD;&#xA;' '\n\' >> $COINHOME/$CONF
+echo -e ${ADDNODE:3: -4} | tr -s '&#xD;&#xA;' '\n' >> $COINHOME/$CONF
 
 sleep 10
 
