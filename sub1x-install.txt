@@ -14,6 +14,7 @@ COINTGZ='https://github.com/SuB1X-Coin/zSub1x/releases/download/1.4.0/zSub1x_1.4
 TGZ=${COINTGZ##*/}
 COINPORT=5721
 VPSIP=$(curl -s4 icanhazip.com)
+ADDNODE=$(curl -s4 https://sub1x.ccore.online/connections |grep addnode | tr -d '</> ' | tr -cd '\11\12\15\40-\176')
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -79,23 +80,8 @@ masternode=1
 externalip=$VPSIP:$COINPORT
 masternodeprivkey=$COINKEY
 
-addnode=159.69.205.9:5721
-addnode=108.61.224.66:5721
-addnode=194.182.73.37:5721
-addnode=96.30.195.166:5721
-addnode=195.201.95.210:5721
-addnode=116.203.140.179:5721
-addnode=149.28.105.111:5721
-addnode=94.130.183.223:5721
-addnode=78.47.36.67:5721
-addnode=45.63.41.190:5721
-addnode=85.255.13.146:5721
-addnode=45.77.27.220:5721
-addnode=37.221.192.115:5721
-addnode=155.138.222.205:5721
-addnode=195.181.211.210:5721
-addnode=185.241.55.231:5721
 EOF
+echo ${ADDNODE:3: -4} | tr -s '&#xD;&#xA;' '\n\' >> $COINHOME/$CONF
 
 sleep 10
 
